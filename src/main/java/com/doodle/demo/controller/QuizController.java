@@ -3,6 +3,7 @@ package com.doodle.demo.controller;
 import com.doodle.demo.dto.GetQuizResponseDTO;
 import com.doodle.demo.model.QuestionWrapper;
 import com.doodle.demo.model.Quiz;
+import com.doodle.demo.model.SubmitQuizResponse;
 import com.doodle.demo.service.QuizService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,19 @@ public class QuizController {
         } catch (Exception e) {
             logger.error("Error occurred while creating quiz", e);
             return ResponseEntity.badRequest().body("Something went wrong");
+        }
+    }
+
+    @PostMapping("submit/{id}")
+    public ResponseEntity<?> submitQuiz(@PathVariable Integer id, @RequestBody List<SubmitQuizResponse> responses) {
+        try {
+            if (responses == null || responses.isEmpty()) return ResponseEntity.badRequest().body("No Responses Submitted");
+            int marks = quizService.calculateResult(id, responses);
+            return ResponseEntity.ok(marks);
+        }catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Something went wrong");
         }
     }
 }
